@@ -6,6 +6,9 @@
 #include <stdlib.h>
 
 #define FOOD_FRACTION 20
+#define FOOD_GEN_FREQ 4
+
+static int turns_passed = 0;
 
 static void update_environment(struct GameWorld* game_world);
 
@@ -73,7 +76,7 @@ static void init_game_food(struct GameWorld* game_world, unsigned width, unsigne
 	init_food_array(&game_world->food_array, (width*height)/FOOD_FRACTION);
 
 	int i;
-	for (i = 0; i < game_world->food_array.max; ++i) {
+	for (i = 0; i < game_world->food_array.max/2; ++i) {
 		while (!randomly_generate_food(game_world));
 	}
 }
@@ -106,12 +109,13 @@ static int check_snake_loc(struct GameWorld* game_world) {
 		return 0;
 	}
 
-	struct Food food;
 	int collision_index = collides_with_food_array(
 		&game_world->food_array, 
 		&game_world->snake.head.pos
 	);
 	if (collision_index >= 0) { // Feed snake
+		struct Food food = food_at(&game_world->food_array, collision_index);
+		food_at(&game_world->food_array, collision_index);
 		remove_food(&game_world->food_array, collision_index);
 		eat_snake(&game_world->snake, &food);
 	}
@@ -140,11 +144,15 @@ static void update_environment(struct GameWorld* game_world) {
 }
 
 int do_turn(struct GameWorld* game_world) {
-	// GENERATE FOOD OBJECTS HERE
+	if (!(turns_passed % FOOD_GEN_FREQ)) {
+		randomly_generate_food(game_world);	
+	}
 	move_snake(&game_world->snake);
 
 	int turn_successful = check_snake_loc(game_world);
 	update_environment(game_world);
+	++turns_passed;
+
 	return turn_successful;
 }
 

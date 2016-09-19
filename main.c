@@ -1,5 +1,6 @@
 #include "game_world.h"
 #include "input_handler.h"
+#include "score_handler.h"
 #include "snake.h"
 #include "point.h"
 
@@ -12,6 +13,9 @@
 #define WIDTH 15
 #define HEIGHT 15
 
+#define SLEEP_FREQ 500000 // In microseconds
+
+int score = 0;
 struct GameWorld game_world;
 
 struct termios old_configt;
@@ -35,10 +39,17 @@ int main(int argc, char* argv[]) {
 		NULL
 	);
 
+	pthread_t score_handler = pthread_create(
+		&score_handler,
+		NULL,
+		handle_user_score,
+		NULL
+	);
+
 
 	int game_over = 0;
 	while (!game_over) {
-		sleep(1);
+		usleep(SLEEP_FREQ);
 		pthread_mutex_lock(&game_world.lock);
 		game_over = !do_turn(&game_world);
 		display_game_world_fixed_cursor(&game_world);
@@ -46,6 +57,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	display_game_world(&game_world);
+	printf("Game over!\n");
 
 	tcsetattr(STDIN_FILENO, TCSANOW, &old_configt);
 	return 0; 

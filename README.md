@@ -23,6 +23,8 @@ doesn't do it again). Also, there is a slight bug with the snake's growth.
 I will fix these in due time. But the game is playable in its present form!
 
 ------------------------------------------------------------------------------------------------------------------
+Please run the program on a Linux machine with pthreads capabilities.
+
 To compile the program, please type
 	make clean
 	make
